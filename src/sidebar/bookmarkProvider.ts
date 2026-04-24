@@ -76,20 +76,15 @@ export class BookmarkProvider implements vscode.TreeDataProvider<BookmarkNode | 
                                 line: bkm.line,
                                 column: bkm.column,
                                 preview: "\u270E " + bkm.label,
-                                uri: bkm.uri
+                                uri: bkm.uri,
+                                label: bkm.label
                             });
                         }
 
-                        bn.books.sort((n1, n2) => {
-                            if (n1.line > n2.line) {
-                                return 1;
-                            }
-
-                            if (n1.line < n2.line) {
-                                return -1;
-                            }
-
-                            return 0;
+                        bn.books.sort((a, b) => {
+                            const la = a.label?.trim() ?? '';   // 空或 undefined/null 转为 ''
+                            const lb = b.label?.trim() ?? '';
+                            return la && lb ? la.localeCompare(lb) : la ? -1 : lb ? 1 : a.line - b.line;
                         });
 
                         this._onDidChangeTreeData.fire(bn);
@@ -235,7 +230,8 @@ export class BookmarkProvider implements vscode.TreeDataProvider<BookmarkNode | 
                                                             line: point.line,
                                                             column: point.column,
                                                             preview: elementInside.label.replace(codicons.tag, "\u270E"),
-                                                            uri: elementInside.uri
+                                                            uri: elementInside.uri,
+                                                            label: elementInside.label
                                                         }
                                                     );
                                                 }
@@ -331,7 +327,8 @@ export class BookmarkProvider implements vscode.TreeDataProvider<BookmarkNode | 
                                                             line: point.line,
                                                             column: point.column,
                                                             preview: elementInside.label.replace(codicons.tag, "\u270E"),
-                                                            uri: elementInside.uri
+                                                            uri: elementInside.uri,
+                                                            label: elementInside.label
                                                         }
                                                     );
                                                 }
@@ -357,10 +354,19 @@ export class BookmarkProvider implements vscode.TreeDataProvider<BookmarkNode | 
                                         command: "_bookmarks.jumpTo",
                                         title: "",
                                         arguments: [ bbb.file, bbb.line, bbb.column, bbb.uri ],
-                                    }));
+                                    },bbb.label,bbb.line));
                                 }
                             });
-                            resolve(bookmarkNodes);
+
+                            const sorted = [...bookmarkNodes].sort(
+                                (a, b) => {
+                                    const la = a.originLabel?.trim() ?? '';   // 空或 undefined/null 转为 ''
+                                    const lb = b.originLabel?.trim() ?? '';
+                                    return la && lb ? la.localeCompare(lb) : la ? -1 : lb ? 1 : a.line - b.line;
+                                }
+                            );
+
+                            resolve(sorted);
                         }
 
                         // viewAsTree returns FileNode[]

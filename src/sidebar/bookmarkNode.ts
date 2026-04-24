@@ -14,6 +14,7 @@ export interface BookmarkPreview {
     column: number;
     preview: string;
     uri: Uri;
+    label?: string;
 }
 
 export class BookmarkNode extends TreeItem {
@@ -25,7 +26,9 @@ export class BookmarkNode extends TreeItem {
         public readonly kind: BookmarkNodeKind,
         public readonly bookmark: File,
         public readonly books?: BookmarkPreview[],
-        public readonly command?: Command
+        public readonly command?: Command,
+        public readonly originLabel?: string,
+        public readonly line?: number
     ) {
         super(label, collapsibleState);
 
