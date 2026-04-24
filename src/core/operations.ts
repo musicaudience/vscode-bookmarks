@@ -187,13 +187,9 @@ export async function getLinePreview(uri: Uri, line: number): Promise<string> {
 }
 
 export function sortBookmarks(file: File): void {
-    file.bookmarks.sort((n1, n2) => {
-        if (n1.line > n2.line) {
-            return 1;
-        }
-        if (n1.line < n2.line) {
-            return -1;
-        }
-        return 0;
+    file.bookmarks.sort((a, b) => {
+        const la = a.label?.trim() ?? '';   // 空或 undefined/null 转为 ''
+        const lb = b.label?.trim() ?? '';
+        return la && lb ? la.localeCompare(lb) : la ? -1 : lb ? 1 : a.line - b.line;
     });
 }

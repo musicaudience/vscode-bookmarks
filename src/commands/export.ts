@@ -53,7 +53,11 @@ async function collectBookmarks(controllers: Controller[]): Promise<BookmarkExpo
             }
 
             // Sort bookmarks by line number
-            const sortedBookmarks = [...file.bookmarks].sort((a, b) => a.line - b.line);
+            const sortedBookmarks = [...file.bookmarks].sort((a, b) => {
+                const la = a.label?.trim() ?? '';   // 空或 undefined/null 转为 ''
+                const lb = b.label?.trim() ?? '';
+                return la && lb ? la.localeCompare(lb) : la ? -1 : lb ? 1 : a.line - b.line;
+            });
 
             for (const bookmark of sortedBookmarks) {
                 let content = "";
@@ -83,10 +87,9 @@ async function collectBookmarks(controllers: Controller[]): Promise<BookmarkExpo
 
     // Sort by file path, then by line number
     bookmarkItems.sort((a, b) => {
-        if (a.file !== b.file) {
-            return a.file.localeCompare(b.file);
-        }
-        return a.line - b.line;
+        const la = a.label?.trim() ?? '';   // 空或 undefined/null 转为 ''
+        const lb = b.label?.trim() ?? '';
+        return la && lb ? la.localeCompare(lb) : la ? -1 : lb ? 1 : a.line - b.line;
     });
 
     return bookmarkItems;
